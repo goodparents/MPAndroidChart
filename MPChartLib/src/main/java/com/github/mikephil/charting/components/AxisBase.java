@@ -107,6 +107,11 @@ public abstract class AxisBase extends ComponentBase {
     protected List<LimitLine> mLimitLines;
 
     /**
+     * array of mHighLow Indicator lines that can be set for the axis
+     */
+    protected List<LimitLine> mIndicatorLines;
+
+    /**
      * flag indicating the limit lines layer depth
      */
     protected boolean mDrawLimitLineBehindData = false;
@@ -156,9 +161,10 @@ public abstract class AxisBase extends ComponentBase {
      */
     public AxisBase() {
         this.mTextSize = Utils.convertDpToPixel(10f);
-        this.mXOffset = Utils.convertDpToPixel(5f);
+        this.mXOffset = Utils.convertDpToPixel(10f);
         this.mYOffset = Utils.convertDpToPixel(5f);
         this.mLimitLines = new ArrayList<LimitLine>();
+        this.mIndicatorLines = new ArrayList<LimitLine>();
     }
 
     /**
@@ -409,6 +415,16 @@ public abstract class AxisBase extends ComponentBase {
         }
     }
 
+    public void addIndicatorLine(LimitLine l) {
+        mIndicatorLines.add(l);
+
+        if (mIndicatorLines.size() > 2) {
+            Log.e("MPAndroiChart",
+                    "Warning! You have more than 6 LimitLines on your axis, do you really want " +
+                            "that?");
+        }
+    }
+
     /**
      * Removes the specified LimitLine from the axis.
      *
@@ -418,11 +434,19 @@ public abstract class AxisBase extends ComponentBase {
         mLimitLines.remove(l);
     }
 
+    public void removeIndicatorLine(LimitLine l) {
+        mIndicatorLines.remove(l);
+    }
+
     /**
      * Removes all LimitLines from the axis.
      */
     public void removeAllLimitLines() {
         mLimitLines.clear();
+    }
+
+    public void removeAllIndicatorLines() {
+        mIndicatorLines.clear();
     }
 
     /**
@@ -432,6 +456,10 @@ public abstract class AxisBase extends ComponentBase {
      */
     public List<LimitLine> getLimitLines() {
         return mLimitLines;
+    }
+
+    public List<LimitLine> getIndicatorLines() {
+        return mIndicatorLines;
     }
 
     /**

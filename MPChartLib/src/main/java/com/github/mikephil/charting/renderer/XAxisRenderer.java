@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
@@ -178,9 +179,9 @@ public class XAxisRenderer extends AxisRenderer {
      */
     protected void drawLabels(Canvas c, float pos, MPPointF anchor) {
 
+        String TAG = "drawLabels";
         final float labelRotationAngleDegrees = mXAxis.getLabelRotationAngle();
         boolean centeringEnabled = mXAxis.isCenterAxisLabelsEnabled();
-
         float[] positions = new float[mXAxis.mEntryCount * 2];
 
         for (int i = 0; i < positions.length; i += 2) {
@@ -227,7 +228,8 @@ public class XAxisRenderer extends AxisRenderer {
     }
 
     protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
-        Utils.drawXAxisValue(c, formattedLabel, x, y, mAxisLabelPaint, anchor, angleDegrees);
+        //Utils.drawXAxisValue(c, formattedLabel, x, y, mAxisLabelPaint, anchor, angleDegrees);
+        Utils.drawXMultiLineText(c, formattedLabel, x, y, mAxisLabelPaint, anchor, angleDegrees);
     }
     protected Path mRenderGridLinesPath = new Path();
     protected float[] mRenderGridLinesBuffer = new float[2];
@@ -334,6 +336,11 @@ public class XAxisRenderer extends AxisRenderer {
 
             c.restoreToCount(clipRestoreCount);
         }
+    }
+
+    @Override
+    public void renderHighLowLines(Canvas c) {
+
     }
 
     float[] mLimitLineSegmentsBuffer = new float[4];

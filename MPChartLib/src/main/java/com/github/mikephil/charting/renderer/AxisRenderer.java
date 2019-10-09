@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.util.Log;
 
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.utils.MPPointD;
@@ -67,7 +68,7 @@ public abstract class AxisRenderer extends Renderer {
             mAxisLinePaint.setStyle(Style.STROKE);
 
             mLimitLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            mLimitLinePaint.setStyle(Paint.Style.STROKE);
+            mLimitLinePaint.setStyle(Style.STROKE);
         }
     }
 
@@ -147,11 +148,12 @@ public abstract class AxisRenderer extends Renderer {
      * @return
      */
     protected void computeAxisValues(float min, float max) {
-
+        String TAG = "computeAxisValues";
         float yMin = min;
         float yMax = max;
 
         int labelCount = mAxis.getLabelCount();
+
         double range = Math.abs(yMax - yMin);
 
         if (labelCount == 0 || range <= 0 || Double.isInfinite(range)) {
@@ -163,7 +165,9 @@ public abstract class AxisRenderer extends Renderer {
 
         // Find out how much spacing (in y value space) between axis values
         double rawInterval = range / labelCount;
+
         double interval = Utils.roundToNextSignificant(rawInterval);
+
 
         // If granularity is enabled, then do not allow the interval to go below specified granularity.
         // This is used to avoid repeated values when rounding values for display.
@@ -172,14 +176,18 @@ public abstract class AxisRenderer extends Renderer {
 
         // Normalize interval
         double intervalMagnitude = Utils.roundToNextSignificant(Math.pow(10, (int) Math.log10(interval)));
+
         int intervalSigDigit = (int) (interval / intervalMagnitude);
+
         if (intervalSigDigit > 5) {
             // Use one order of magnitude higher, to avoid intervals like 0.9 or
             // 90
             interval = Math.floor(10 * intervalMagnitude);
+
         }
 
         int n = mAxis.isCenterAxisLabelsEnabled() ? 1 : 0;
+
 
         // force label count
         if (mAxis.isForceLabelsEnabled()) {
@@ -205,6 +213,7 @@ public abstract class AxisRenderer extends Renderer {
         } else {
 
             double first = interval == 0.0 ? 0.0 : Math.ceil(yMin / interval) * interval;
+
             if(mAxis.isCenterAxisLabelsEnabled()) {
                 first -= interval;
             }
@@ -228,10 +237,8 @@ public abstract class AxisRenderer extends Renderer {
             }
 
             for (f = first, i = 0; i < n; f += interval, ++i) {
-
                 if (f == 0.0) // Fix for negative zero case (Where value == -0.0, and 0.0 == -0.0)
                     f = 0.0;
-
                 mAxis.mEntries[i] = (float) f;
             }
         }
@@ -284,4 +291,6 @@ public abstract class AxisRenderer extends Renderer {
      * @param c
      */
     public abstract void renderLimitLines(Canvas c);
+
+    public abstract void renderHighLowLines(Canvas c);
 }

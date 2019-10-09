@@ -69,7 +69,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * flag that indicates if logging is enabled or not
      */
-    protected boolean mLogEnabled = false;
+    protected boolean mLogEnabled = true;
 
     /**
      * object that holds all data that was originally set for the chart, before
@@ -724,8 +724,9 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
 
             IDataSet set = mData.getDataSetByIndex(highlight.getDataSetIndex());
 
-            Entry e = mData.getEntryForHighlight(mIndicesToHighlight[i]);
-            int entryIndex = set.getEntryIndex(e);
+            try {
+                Entry e = mData.getEntryForHighlight(mIndicesToHighlight[i]);
+                int entryIndex = set.getEntryIndex(e);
 
             // make sure entry not null
             if (e == null || entryIndex > set.getEntryCount() * mAnimator.getPhaseX())
@@ -740,8 +741,14 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
             // callbacks to update the content
             mMarker.refreshContent(e, highlight);
 
+
+
             // draw the marker
             mMarker.draw(canvas, pos[0], pos[1]);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -1505,7 +1512,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * @param quality         e.g. 50, min = 0, max = 100
      * @return returns true if saving was successful, false if not
      */
-    public boolean saveToGallery(String fileName, String subFolderPath, String fileDescription, Bitmap.CompressFormat
+    public boolean saveToGallery(String fileName, String subFolderPath, String fileDescription, CompressFormat
             format, int quality) {
         // restrain quality
         if (quality < 0 || quality > 100)
@@ -1585,7 +1592,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * @return returns true if saving was successful, false if not
      */
     public boolean saveToGallery(String fileName, int quality) {
-        return saveToGallery(fileName, "", "MPAndroidChart-Library Save", Bitmap.CompressFormat.PNG, quality);
+        return saveToGallery(fileName, "", "MPAndroidChart-Library Save", CompressFormat.PNG, quality);
     }
 
     /**
@@ -1596,7 +1603,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
      * @return returns true if saving was successful, false if not
      */
     public boolean saveToGallery(String fileName) {
-        return saveToGallery(fileName, "", "MPAndroidChart-Library Save", Bitmap.CompressFormat.PNG, 40);
+        return saveToGallery(fileName, "", "MPAndroidChart-Library Save", CompressFormat.PNG, 40);
     }
 
     /**

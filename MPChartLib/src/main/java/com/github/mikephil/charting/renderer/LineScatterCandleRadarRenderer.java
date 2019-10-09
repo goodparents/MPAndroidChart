@@ -1,6 +1,7 @@
 package com.github.mikephil.charting.renderer;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Path;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
@@ -33,9 +34,13 @@ public abstract class LineScatterCandleRadarRenderer extends BarLineScatterCandl
 
         // set color and stroke-width
         mHighlightPaint.setColor(set.getHighLightColor());
+        //mHighlightPaint.setStyle(Paint.Style.);
+
         mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
 
+
         // draw highlighted lines (if enabled)
+
         mHighlightPaint.setPathEffect(set.getDashPathEffectHighlight());
 
         // draw vertical highlight lines
@@ -43,7 +48,8 @@ public abstract class LineScatterCandleRadarRenderer extends BarLineScatterCandl
 
             // create vertical path
             mHighlightLinePath.reset();
-            mHighlightLinePath.moveTo(x, mViewPortHandler.contentTop());
+            //mHighlightLinePath.moveTo(x, mViewPortHandler.contentTop());
+            mHighlightLinePath.moveTo(x, y);
             mHighlightLinePath.lineTo(x, mViewPortHandler.contentBottom());
 
             c.drawPath(mHighlightLinePath, mHighlightPaint);

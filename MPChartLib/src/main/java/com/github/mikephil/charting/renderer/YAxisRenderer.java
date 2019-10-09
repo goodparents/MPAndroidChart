@@ -29,7 +29,7 @@ public class YAxisRenderer extends AxisRenderer {
 
         this.mYAxis = yAxis;
 
-        if(mViewPortHandler != null) {
+        if (mViewPortHandler != null) {
 
             mAxisLabelPaint.setColor(Color.BLACK);
             mAxisLabelPaint.setTextSize(Utils.convertDpToPixel(10f));
@@ -89,6 +89,105 @@ public class YAxisRenderer extends AxisRenderer {
     }
 
     @Override
+    public void renderHighLowLines(Canvas c) {
+
+        Path mRenderLimitLines = new Path();
+        float[] mRenderLimitLinesBuffer = new float[2];
+        //RectF mLineClippingRect = new RectF();
+
+        List<LimitLine> limitLines = mYAxis.getIndicatorLines();
+
+        if (limitLines == null || limitLines.size() <= 0)
+            return;
+
+        float[] pts = mRenderLimitLinesBuffer;
+        pts[0] = 0;
+        pts[1] = 0;
+        Path limitLinePath = mRenderLimitLines;
+        limitLinePath.reset();
+
+        for (int i = 0; i < limitLines.size(); i++) {
+            LimitLine l = limitLines.get(i);
+
+            if (!l.isEnabled())
+                continue;
+
+
+            //int clipRestoreCount = c.save();
+            /*mLineClippingRect.set(mViewPortHandler.getContentRect());
+            mLineClippingRect.inset(0.f, -20);
+            c.clipRect(mLineClippingRect);*/
+
+            mLimitLinePaint.setStyle(Paint.Style.STROKE);
+            mLimitLinePaint.setColor(l.getLineColor());
+            mLimitLinePaint.setStrokeWidth(l.getLineWidth());
+            mLimitLinePaint.setPathEffect(l.getDashPathEffect());
+
+            pts[1] = l.getLimit();
+
+            mTrans.pointValuesToPixel(pts);
+
+            c.drawLine(mViewPortHandler.contentLeft()-85, pts[1], -90,
+                    pts[1], mLimitLinePaint);
+
+
+        }
+
+
+
+
+        /*LimitLine high = new LimitLine(80f, "");
+        high.setLineWidth(4f);
+        high.enableDashedLine(10f, 7f, 0f);*/
+
+
+
+        /*float xPos = mViewPortHandler.offsetLeft() - 55;
+        limitLinePath.moveTo(-4, (180 * 2 + 1) + 7);
+        limitLinePath.lineTo(xPos, (180 * 2 + 1) + 7);
+
+        c.drawPath(limitLinePath, mLimitLinePaint);
+        limitLinePath.reset();
+        // c.drawLines(pts, mLimitLinePaint);
+
+        c.restoreToCount(clipRestoreCount);*/
+
+
+        //
+
+        /*float xoffset = mYAxis.getXOffset();
+        float yoffset = Utils.calcTextHeight(mAxisLabelPaint, "A") / 2.5f + mYAxis.getYOffset();
+
+        AxisDependency dependency = mYAxis.getAxisDependency();
+        YAxisLabelPosition labelPosition = mYAxis.getLabelPosition();
+
+        float xPos = 0f;
+
+        if (dependency == AxisDependency.LEFT) {
+
+            if (labelPosition == YAxisLabelPosition.OUTSIDE_CHART) {
+                mAxisLabelPaint.setTextAlign(Align.RIGHT);
+                xPos = mViewPortHandler.offsetLeft() - xoffset;
+            } else {
+                mAxisLabelPaint.setTextAlign(Align.LEFT);
+                xPos = mViewPortHandler.offsetLeft() + xoffset;
+            }
+
+        } else {
+
+            if (labelPosition == YAxisLabelPosition.OUTSIDE_CHART) {
+                mAxisLabelPaint.setTextAlign(Align.LEFT);
+                xPos = mViewPortHandler.contentRight() + xoffset;
+            } else {
+                mAxisLabelPaint.setTextAlign(Align.RIGHT);
+                xPos = mViewPortHandler.contentRight() - xoffset;
+            }
+        }
+
+        drawYLabels(c, xPos, positions, yoffset);*/
+    }
+
+    @Override
     public void renderAxisLine(Canvas c) {
 
         if (!mYAxis.isEnabled() || !mYAxis.isDrawAxisLineEnabled())
@@ -129,6 +228,7 @@ public class YAxisRenderer extends AxisRenderer {
     }
 
     protected Path mRenderGridLinesPath = new Path();
+
     @Override
     public void renderGridLines(Canvas c) {
 
@@ -190,6 +290,7 @@ public class YAxisRenderer extends AxisRenderer {
     }
 
     protected float[] mGetTransformedPositionsBuffer = new float[2];
+
     /**
      * Transforms the values contained in the axis entries to screen pixels and returns them in form of a float array
      * of x- and y-coordinates.
@@ -198,7 +299,7 @@ public class YAxisRenderer extends AxisRenderer {
      */
     protected float[] getTransformedPositions() {
 
-        if(mGetTransformedPositionsBuffer.length != mYAxis.mEntryCount * 2){
+        if (mGetTransformedPositionsBuffer.length != mYAxis.mEntryCount * 2) {
             mGetTransformedPositionsBuffer = new float[mYAxis.mEntryCount * 2];
         }
         float[] positions = mGetTransformedPositionsBuffer;
@@ -246,6 +347,7 @@ public class YAxisRenderer extends AxisRenderer {
     protected Path mRenderLimitLines = new Path();
     protected float[] mRenderLimitLinesBuffer = new float[2];
     protected RectF mLimitLineClippingRect = new RectF();
+
     /**
      * Draws the LimitLines associated with this axis to the screen.
      *

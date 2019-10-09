@@ -3,6 +3,7 @@ package com.github.mikephil.charting.utils;
 
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -76,6 +77,8 @@ public class ViewPortHandler {
      */
     private float mTransOffsetY = 0f;
 
+    String TAG = "ViewPortHandler";
+
     /**
      * Constructor - don't forget calling setChartDimens(...)
      */
@@ -91,7 +94,6 @@ public class ViewPortHandler {
      */
 
     public void setChartDimens(float width, float height) {
-
         float offsetLeft = this.offsetLeft();
         float offsetTop = this.offsetTop();
         float offsetRight = this.offsetRight();
@@ -194,7 +196,6 @@ public class ViewPortHandler {
      * @param y
      */
     public Matrix zoomIn(float x, float y) {
-
         Matrix save = new Matrix();
         zoomIn(x, y, save);
         return save;
@@ -211,7 +212,6 @@ public class ViewPortHandler {
      * center.
      */
     public Matrix zoomOut(float x, float y) {
-
         Matrix save = new Matrix();
         zoomOut(x, y, save);
         return save;
@@ -669,7 +669,6 @@ public class ViewPortHandler {
      * @return
      */
     public boolean isFullyZoomedOut() {
-
         return isFullyZoomedOutX() && isFullyZoomedOutY();
     }
 

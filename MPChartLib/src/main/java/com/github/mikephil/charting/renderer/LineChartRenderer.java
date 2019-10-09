@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
@@ -55,7 +56,11 @@ public class LineChartRenderer extends LineRadarRenderer {
     protected Bitmap.Config mBitmapConfig = Bitmap.Config.ARGB_8888;
 
     protected Path cubicPath = new Path();
+    protected Path cubicPathHigh = new Path();
     protected Path cubicFillPath = new Path();
+    protected Path cubicFillPathHigh = new Path();
+
+    String TAG = "LineChartRenderer";
 
     public LineChartRenderer(LineDataProvider chart, ChartAnimator animator,
                              ViewPortHandler viewPortHandler) {
@@ -186,15 +191,20 @@ public class LineChartRenderer extends LineRadarRenderer {
 
     protected void drawCubicBezier(ILineDataSet dataSet) {
 
+        //Path cubicPathHigh = new Path();
+        //Path cubicFillPathHigh = new Path();
+        Boolean isFillTwoColor = false;
         float phaseY = mAnimator.getPhaseY();
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
+        Transformer transHigh = mChart.getTransformer(dataSet.getAxisDependency());
 
         mXBounds.set(mChart, dataSet);
 
         float intensity = dataSet.getCubicIntensity();
 
         cubicPath.reset();
+        cubicPathHigh.reset();
 
         if (mXBounds.range >= 1) {
 
@@ -221,6 +231,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             // let the spline start
             cubicPath.moveTo(cur.getX(), cur.getY() * phaseY);
+            cubicPathHigh.moveTo(cur.getX(), cur.getY() * phaseY);
 
             for (int j = mXBounds.min + 1; j <= mXBounds.range + mXBounds.min; j++) {
 
@@ -236,9 +247,33 @@ public class LineChartRenderer extends LineRadarRenderer {
                 curDx = (next.getX() - prev.getX()) * intensity;
                 curDy = (next.getY() - prev.getY()) * intensity;
 
-                cubicPath.cubicTo(prev.getX() + prevDx, (prev.getY() + prevDy) * phaseY,
-                        cur.getX() - curDx,
-                        (cur.getY() - curDy) * phaseY, cur.getX(), cur.getY() * phaseY);
+                float maxy = highLimit ;
+
+                float x1 = prev.getX() + prevDx;
+                float y1 = (prev.getY() + prevDy) * phaseY;
+                float x2 = cur.getX() - curDx;
+                float y2 = (cur.getY() - curDy) * phaseY;
+                float x3 = cur.getX();
+                float y3 = cur.getY() * phaseY;
+
+                if(y1>maxy || y2>maxy ||y3>maxy){
+                    isFillTwoColor = true;
+                }
+
+                float newy1 = y1<=maxy ? y1 : maxy;
+                float newy2 = y2<=maxy ? y2 : maxy;
+                float newy3 = y3<=maxy ? y3 : maxy;
+
+//                if(next.getY()<maxy){
+//
+//                }
+
+                //cubicPathHigh.cubicTo(x1, y1, x2, y2, x3, y3);
+               //  cubicPathHigh.cubicTo(x1, newy1, x2, newy2, x3, newy3);
+
+              cubicPath.cubicTo(x1, y1, x2, y2, x3, y3);
+              cubicPathHigh.cubicTo(x1, newy1, x2, newy2, x3, newy3);
+
             }
         }
 
@@ -247,8 +282,15 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             cubicFillPath.reset();
             cubicFillPath.addPath(cubicPath);
+            cubicFillPathHigh.reset();
+            cubicFillPathHigh.addPath(cubicPathHigh);
 
-            drawCubicFill(mBitmapCanvas, dataSet, cubicFillPath, trans, mXBounds);
+            if(isFillTwoColor)
+                drawCubicFill(mBitmapCanvas, dataSet, cubicFillPath,cubicFillPathHigh, trans, mXBounds);
+            else
+                drawCubicFill(mBitmapCanvas, dataSet, cubicFillPath, trans, mXBounds);
+            //drawCubicFill(mBitmapCanvas, dataSet,cubicFillPathHigh,cubicFillPath, trans,transHigh, mXBounds);
+
         }
 
         mRenderPaint.setColor(dataSet.getColor());
@@ -256,16 +298,18 @@ public class LineChartRenderer extends LineRadarRenderer {
         mRenderPaint.setStyle(Paint.Style.STROKE);
 
         trans.pathValueToPixel(cubicPath);
+        //trans.pathValueToPixel(cubicPathHigh);
 
         mBitmapCanvas.drawPath(cubicPath, mRenderPaint);
+        //mBitmapCanvas.drawPath(cubicPathHigh, mRenderPaint);
 
         mRenderPaint.setPathEffect(null);
     }
 
     protected void drawCubicFill(Canvas c, ILineDataSet dataSet, Path spline, Transformer trans, XBounds bounds) {
-
         float fillMin = dataSet.getFillFormatter()
                 .getFillLinePosition(dataSet, mChart);
+        //fillMin = 50.0f;
 
         spline.lineTo(dataSet.getEntryForIndex(bounds.min + bounds.range).getX(), fillMin);
         spline.lineTo(dataSet.getEntryForIndex(bounds.min).getX(), fillMin);
@@ -280,6 +324,39 @@ public class LineChartRenderer extends LineRadarRenderer {
         } else {
 
             drawFilledPath(c, spline, dataSet.getFillColor(), dataSet.getFillAlpha());
+        }
+    }
+
+    protected void drawCubicFill(Canvas c, ILineDataSet dataSet, Path spline,Path splineHigh, Transformer trans, XBounds bounds) {
+//        final int highLimitFillColor = Color.rgb(237, 91, 91);
+//        final int blueFillColor = Color.rgb(65, 105, 225);
+        float fillMin = dataSet.getFillFormatter()
+                .getFillLinePosition(dataSet, mChart);
+
+        Log.e("bounds.min",bounds.min+"");
+        Log.e("bounds.range",bounds.range+"");
+        Log.e("bounds x",dataSet.getEntryForIndex(bounds.min + bounds.range).getX()+"");
+        Log.e("fillMin",fillMin+"");
+        spline.lineTo(dataSet.getEntryForIndex(bounds.min + bounds.range).getX(), fillMin);
+        spline.lineTo(dataSet.getEntryForIndex(bounds.min).getX(), fillMin);
+        spline.close();
+
+        trans.pathValueToPixel(spline);
+
+        drawFilledPath(c, spline,highLimitColor, dataSet.getFillAlpha());
+
+        splineHigh.lineTo(dataSet.getEntryForIndex(bounds.min + bounds.range).getX(), fillMin);
+        splineHigh.lineTo(dataSet.getEntryForIndex(bounds.min).getX(), fillMin);
+        splineHigh.close();
+
+        trans.pathValueToPixel(splineHigh);
+        //drawFilledPath(c, splineHigh,highLimitFillColor, dataSet.getFillAlpha());
+
+        final Drawable drawable = dataSet.getFillDrawable();
+        if (drawable != null) {
+            drawFilledPath(c, splineHigh, drawable);
+        } else {
+            drawFilledPath(c, splineHigh, dataSet.getFillColor(), dataSet.getFillAlpha());
         }
     }
 
@@ -738,7 +815,7 @@ public class LineChartRenderer extends LineRadarRenderer {
     }
 
     /**
-     * Releases the drawing bitmap. This should be called when {@link LineChart#onDetachedFromWindow()}.
+     * Releases the drawing bitmap. This should be called when .
      */
     public void releaseBitmap() {
         if (mBitmapCanvas != null) {

@@ -37,6 +37,10 @@ public abstract class DataRenderer extends Renderer {
 
     protected Paint mDrawPaint;
 
+    public float highLimit = -1.0f;
+    /** the color of the highlimit chart fill */
+    public int highLimitColor = Color.rgb(237, 91, 91);
+
     /**
      * paint object for drawing values (text representing values of chart
      * entries)
@@ -58,7 +62,7 @@ public abstract class DataRenderer extends Renderer {
         mValuePaint.setTextSize(Utils.convertDpToPixel(9f));
 
         mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mHighlightPaint.setStyle(Paint.Style.STROKE);
+        mHighlightPaint.setStyle(Style.STROKE);
         mHighlightPaint.setStrokeWidth(2f);
         mHighlightPaint.setColor(Color.rgb(255, 187, 115));
     }
@@ -66,6 +70,22 @@ public abstract class DataRenderer extends Renderer {
     protected boolean isDrawingValuesAllowed(ChartInterface chart) {
         return chart.getData().getEntryCount() < chart.getMaxVisibleCount()
                 * mViewPortHandler.getScaleX();
+    }
+
+    public void setHighLimit(int limit) {
+                highLimit = limit;
+    }
+
+    public void setHighLimitColor(int color) {
+        highLimitColor = color;
+    }
+
+    public float getHighLimitLine() {
+        return highLimit;
+    }
+
+    public int getHighLimitColor() {
+        return highLimitColor;
     }
 
     /**

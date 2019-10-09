@@ -29,6 +29,7 @@ import com.github.mikephil.charting.jobs.MoveViewJob;
 import com.github.mikephil.charting.jobs.ZoomJob;
 import com.github.mikephil.charting.listener.BarLineChartTouchListener;
 import com.github.mikephil.charting.listener.OnDrawListener;
+import com.github.mikephil.charting.renderer.DataRenderer;
 import com.github.mikephil.charting.renderer.XAxisRenderer;
 import com.github.mikephil.charting.renderer.YAxisRenderer;
 import com.github.mikephil.charting.utils.MPPointD;
@@ -133,6 +134,11 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
 
     protected XAxisRenderer mXAxisRenderer;
 
+
+//    public float highLimit = -1.0f;
+//    /** the color of the highlimit chart fill */
+//    public int highLimitColor = Color.rgb(237, 91, 91);
+
     // /** the approximator object used for data filtering */
     // private Approximator mApproximator;
 
@@ -170,7 +176,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
         mGridBackgroundPaint = new Paint();
         mGridBackgroundPaint.setStyle(Style.FILL);
         // mGridBackgroundPaint.setColor(Color.WHITE);
-        mGridBackgroundPaint.setColor(Color.rgb(240, 240, 240)); // light
+        mGridBackgroundPaint.setColor(Color.rgb(237, 91, 91)); // light
         // grey
 
         mBorderPaint = new Paint();
@@ -266,6 +272,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
         mXAxisRenderer.renderAxisLabels(canvas);
         mAxisRendererLeft.renderAxisLabels(canvas);
         mAxisRendererRight.renderAxisLabels(canvas);
+        mAxisRendererLeft.renderHighLowLines(canvas);
 
         if (isClipValuesToContentEnabled()) {
             clipRestoreCount = canvas.save();
@@ -467,21 +474,29 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
             float offsetLeft = 0f, offsetRight = 0f, offsetTop = 0f, offsetBottom = 0f;
 
             calculateLegendOffsets(mOffsetsBuffer);
-
             offsetLeft += mOffsetsBuffer.left;
             offsetTop += mOffsetsBuffer.top;
             offsetRight += mOffsetsBuffer.right;
             offsetBottom += mOffsetsBuffer.bottom;
 
+//            Log.e("after calculateLegendOffsets","mOffsetsBuffer.left: "+offsetLeft);
+//            Log.e("after calculateLegendOffsets","mOffsetsBuffer.top: "+offsetTop);
+//            Log.e("after calculateLegendOffsets","mOffsetsBuffer.right: "+offsetRight);
+//            Log.e("after calculateLegendOffsets","mOffsetsBuffer.bottom: "+offsetBottom);
+
             // offsets for y-labels
             if (mAxisLeft.needsOffset()) {
                 offsetLeft += mAxisLeft.getRequiredWidthSpace(mAxisRendererLeft
                         .getPaintAxisLabels());
+//                Log.e("offsets for y-labels","left: "+mAxisLeft.getRequiredWidthSpace(mAxisRendererLeft
+//                        .getPaintAxisLabels()));
             }
 
             if (mAxisRight.needsOffset()) {
                 offsetRight += mAxisRight.getRequiredWidthSpace(mAxisRendererRight
                         .getPaintAxisLabels());
+//                Log.e("offsets for y-labels","right: "+mAxisRight.getRequiredWidthSpace(mAxisRendererRight
+//                        .getPaintAxisLabels()));
             }
 
             if (mXAxis.isEnabled() && mXAxis.isDrawLabelsEnabled()) {
@@ -518,9 +533,9 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
                     Math.max(minOffset, offsetBottom));
 
             if (mLogEnabled) {
-                Log.i(LOG_TAG, "offsetLeft: " + offsetLeft + ", offsetTop: " + offsetTop
-                        + ", offsetRight: " + offsetRight + ", offsetBottom: " + offsetBottom);
-                Log.i(LOG_TAG, "Content: " + mViewPortHandler.getContentRect().toString());
+//                Log.i(LOG_TAG, "offsetLeft: " + offsetLeft + ", offsetTop: " + offsetTop
+//                        + ", offsetRight: " + offsetRight + ", offsetBottom: " + offsetBottom);
+//                Log.i(LOG_TAG, "Content: " + mViewPortHandler.getContentRect().toString());
             }
         }
 
@@ -1176,6 +1191,14 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
         mDoubleTapToZoomEnabled = enabled;
     }
 
+    public void setHighLimit(int limit) {
+        getRenderer().setHighLimit(limit);
+    }
+
+    public void setHighLimitColor(int color) {
+        getRenderer().setHighLimitColor(color);
+    }
+
     /**
      * Returns true if zooming via double-tap is enabled false if not.
      *
@@ -1184,6 +1207,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
     public boolean isDoubleTapToZoomEnabled() {
         return mDoubleTapToZoomEnabled;
     }
+
 
     /**
      * set this to true to draw the grid background, false if not
